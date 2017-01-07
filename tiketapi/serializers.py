@@ -1,3 +1,5 @@
+"""Author : Fadhlan Ridhwanallah"""
+
 from rest_framework import serializers
 from .models import *
 import datetime

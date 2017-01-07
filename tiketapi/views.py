@@ -1,3 +1,5 @@
+"""Author : Fadhlan Ridhwanallah"""
+
 from rest_framework import generics,viewsets,views, status
 from .models import *
 from .serializers import *
