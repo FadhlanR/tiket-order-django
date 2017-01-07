@@ -1,0 +1,70 @@
+"""serializer_class = LayananKeretaSerializer
+  def get_queryset(self):
+      year = int(self.kwargs['tahun'])
+      month = int(self.kwargs['bulan'])
+      day = int(self.kwargs['hari'])
+      tomorrow = day + 1
+      from_id = self.kwargs['asal_id']
+      to_id = self.kwargs['tujuan_id']
+      jml_penumpang = self.kwargs['jml_penumpang']
+      layanan = LayananKereta.objects.raw("""SELECT *
+                                              FROM layanan_kereta l, rangkaian_perjalanan r2, rangkaian_perjalanan r1
+                                              WHERE r2.jenis_perjalanan =  'B'
+                                              AND r2.id_stasiun =  %s
+                                              AND r2.waktu BETWEEN STR_TO_DATE(  '%s/%s/%s',  '%%Y/%%m/%%d' )
+                                              AND STR_TO_DATE(  '%s/%s/%s',  '%%Y/%%m/%%d' )
+                                              AND r1.jenis_perjalanan =  'D'
+                                              AND r1.id_stasiun =  %s
+                                              AND r1.id_layanan_kereta = r2.id_layanan_kereta
+                                              AND l.id_layanan_kereta = r1.id_layanan_kereta""",
+                                              [from_id,year,month,day,year,month,tomorrow,to_id])
+      return layanan"""
+
+      """queryset = LayananKereta.objects.all()
+      serializer_class = LayananKeretaSerializer
+      serializer_class = RangkaianPerjalananSerializer
+      def get_queryset(self):
+          tahun = int(self.kwargs['tahun'])
+          bulan = int(self.kwargs['bulan'])
+          hari = int(self.kwargs['hari'])
+          asal_id = self.kwargs['asal_id']
+          tujuan_id = self.kwargs['tujuan_id']
+          jml_penumpang = self.kwargs['jml_penumpang']
+          layanan_asal_id = RangkaianPerjalanan.objects.filter(jenis_perjalanan = 'B').filter(waktu__range = (datetime.date(tahun,bulan,hari), datetime.date(tahun,bulan,hari+1))).filter(id_stasiun = asal_id)
+          layanan_id = RangkaianPerjalanan.objects.filter(id_layanan_kereta__in = layanan_asal_id.values("id_layanan_kereta")).filter(jenis_perjalanan = 'D').filter(id_stasiun = tujuan_id)
+          layanan = RangkaianPerjalanan.objects.filter(id_layanan_kereta__in = layanan_id.values("id_layanan_kereta"))
+          return layanan"""
+
+
+
+              """rangkaian = RangkaianPerjalananSerializer(many=True,source='rangkaianperjalanan_set')"""
+
+              perjalanan = serializers.SerializerMethodField('get_rangkaianperjalanan')
+
+                def get_rangkaianperjalanan(self, obj):
+                    view = self.context['view']
+                    tahun = int(view.kwargs['tahun'])
+                    bulan = int(view.kwargs['bulan'])
+                    hari = int(view.kwargs['hari'])
+                    besok = hari + 1
+                    asal_id = view.kwargs['asal_id']
+                    tujuan_id = view.kwargs['tujuan_id']
+                    layanan = RangkaianPerjalanan.objects.raw("""SELECT *
+                                                                 FROM rangkaian_perjalanan
+                                                                 WHERE (
+                                                                 jenis_perjalanan =  'B'
+                                                                 AND id_stasiun =  %s
+                                                                 AND waktu BETWEEN STR_TO_DATE(  '%s/%s/%s',  '%%Y/%%m/%%d' )
+                                                                 AND STR_TO_DATE(  '%s/%s/%s',  '%%Y/%%m/%%d' )
+                                                                 )
+                                                                 OR (
+                                                                 jenis_perjalanan =  'D'
+                                                                 AND id_stasiun =  %s
+                                                                 AND waktu BETWEEN STR_TO_DATE(  '%s/%s/%s',  '%%Y/%%m/%%d' )
+                                                                 AND STR_TO_DATE(  '%s/%s/%s',  '%%Y/%%m/%%d' )
+                                                                    )
+                                                                 ORDER BY waktu
+                                                            """,
+                                                            [asal_id,tahun,bulan,hari,tahun,bulan,besok,tujuan_id,tahun,bulan,hari,tahun,bulan,besok])
+                    serializer = RangkaianPerjalananSerializer(many=True,source='rangkaianperjalanan_set',instance=layanan)
+                    return serializer.data
