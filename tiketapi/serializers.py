@@ -50,9 +50,6 @@ class PenumpangSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PembayaranSerializer(serializers.ModelSerializer):
-    def validate_waktu_pembayaran(self,values):
-        if(values.kode_pembayaran is None):
-            raise serializers.ValidationError("Ga masuk")
 
     class Meta:
         model = Pembayaran
