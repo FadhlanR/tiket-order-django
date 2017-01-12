@@ -1,4 +1,4 @@
-"""Author : Fadhlan Ridhwanallah"""
+#Author: Fadhlan Ridhwanallah
 
 from rest_framework import serializers
 from .models import *
@@ -21,16 +21,6 @@ class LayananKeretaSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
-class RangkaianPerjalananSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RangkaianPerjalanan
-        fields = '__all__'
-        depth = 3
-
-class BookingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Booking
-        fields = '__all__'
 
 class PemesanSerializer(serializers.ModelSerializer):
     kode_booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())
@@ -59,23 +49,30 @@ class PenumpangSerializer(serializers.ModelSerializer):
         model = Penumpang
         fields = '__all__'
 
+class PembayaranSerializer(serializers.ModelSerializer):
+    def validate_waktu_pembayaran(self,values):
+        if(values.kode_pembayaran is None):
+            raise serializers.ValidationError("Ga masuk")
+
+    class Meta:
+        model = Pembayaran
+        fields = '__all__'
 
 class CaraBayarSerializer(serializers.ModelSerializer):
     class Meta:
         model = CaraBayar
         fields = '__all__'
 
-
-class PembayaranSerializer(serializers.ModelSerializer):
-    def validate_waktu_pembayaran(self,values):
-        if(hasattr(values, 'kode_pembayaran')):
-            pembayaran = Pemesan.objects.get(kode_pembayaran = values.kode_pembayaran)
-
-            if((datetime.datetime.now() - pembayaran.waktu_penagihan.replace(tzinfo=None)).total_seconds() > 7200):
-                raise serializers.ValidationError("Waktu pembayaran sudah melebihi ketentuan")
-            return values
-        return values
-
+class BookingSerializer(serializers.ModelSerializer):
+    penumpang = PenumpangSerializer(many = True,read_only = True, source='penumpang_set')
+    pemesan = PemesanSerializer(many = True,read_only = True,source='pemesan_set')
+    pembayaran = PembayaranSerializer(many = True,read_only = True,source='pembayaran_set')
     class Meta:
-        model = Pembayaran
+        model = Booking
         fields = '__all__'
+
+class RangkaianPerjalananSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RangkaianPerjalanan
+        fields = '__all__'
+        depth = 3

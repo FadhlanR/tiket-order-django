@@ -1,4 +1,4 @@
-"""Author : Fadhlan Ridhwanallah"""
+#Author: Fadhlan Ridhwanallah
 
 from rest_framework import generics,viewsets,views, status
 from .models import *
@@ -50,8 +50,15 @@ class RangkaianPerjalananList(generics.ListAPIView):
         return layanan
 
 class BookingList(generics.ListCreateAPIView):
-    queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+
+    def get_queryset(self):
+        kode_pembayaran = int(self.kwargs['pembayaran'])
+        booking = Booking.objects.raw("""SELECT *
+                                         FROM booking b, pembayaran p
+                                         WHERE b.kode_booking = p.kode_booking AND p.kode_pembayaran = %s""",
+                                         [kode_pembayaran])
+        return booking
 
 
 class PemesanList(generics.ListCreateAPIView):
@@ -68,5 +75,9 @@ class CaraBayarList(generics.ListCreateAPIView):
     serializer_class = CaraBayarSerializer
 
 class PembayaranList(generics.ListCreateAPIView):
+    queryset = Pembayaran.objects.all()
+    serializer_class = PembayaranSerializer
+
+class PembayaranDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pembayaran.objects.all()
     serializer_class = PembayaranSerializer

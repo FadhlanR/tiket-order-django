@@ -1,3 +1,6 @@
+"""Author : Fadhlan Ridhwanallah"""
+
+
 """serializer_class = LayananKeretaSerializer
   def get_queryset(self):
       year = int(self.kwargs['tahun'])
@@ -68,3 +71,7 @@
                                                             [asal_id,tahun,bulan,hari,tahun,bulan,besok,tujuan_id,tahun,bulan,hari,tahun,bulan,besok])
                     serializer = RangkaianPerjalananSerializer(many=True,source='rangkaianperjalanan_set',instance=layanan)
                     return serializer.data
+
+
+                        pembayaran = PembayaranSerializer(many = True,read_only = True,source='pembayaran_set')
+                        booking = BookingSerializer(many = True,read_only = True,source='pembayaran_set')
