@@ -49,7 +49,7 @@ class RangkaianPerjalananList(generics.ListAPIView):
                                     [asal_id,tahun,bulan,hari,tahun,bulan,besok,tujuan_id,tahun,bulan,hari,tahun,bulan,besok])
         return layanan
 
-class BookingList(generics.ListCreateAPIView):
+class BookingDetail(generics.ListCreateAPIView):
     serializer_class = BookingSerializer
 
     def get_queryset(self):
@@ -60,6 +60,9 @@ class BookingList(generics.ListCreateAPIView):
                                          [kode_pembayaran])
         return booking
 
+class BookingList(generics.ListCreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
 
 class PemesanList(generics.ListCreateAPIView):
     queryset = Pemesan.objects.all()

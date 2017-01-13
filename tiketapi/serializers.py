@@ -69,6 +69,7 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class RangkaianPerjalananSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = RangkaianPerjalanan
         fields = '__all__'
